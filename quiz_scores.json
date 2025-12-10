@@ -1,0 +1,66 @@
+{
+    "1": {
+        "Level 1: Fundamentals": {
+            "score_value": 2,
+            "date": "2025-12-10 11:45:00",
+            "answers": {
+                "Q1": "",
+                "Q2": ""
+            }
+        },
+        "Level 2: Architecture": {
+            "score_value": 2,
+            "date": "2025-12-10 11:03:43",
+            "answers": {
+                "Q1": "",
+                "Q2": ""
+            }
+        },
+        "Level 3: Advanced Concepts": {
+            "score_value": 2,
+            "date": "2025-12-10 11:03:47",
+            "answers": {
+                "Q1": "",
+                "Q2": ""
+            }
+        },
+        "Level 4: Implementation": {
+            "score_value": 2,
+            "date": "2025-12-10 11:03:50",
+            "answers": {
+                "Q1": "",
+                "Q2": ""
+            }
+        },
+        "Level 5: Multi-Select": {
+            "score_value": 2,
+            "date": "2025-12-10 11:42:40",
+            "answers": {
+                "Q1_Multi": [
+                    "A"
+                ],
+                "Q2_Single": "C"
+            }
+        }
+    },
+    "2": {
+        "Level 1: Fundamentals": {
+            "score_value": 2,
+            "date": "2025-12-10 11:14:06",
+            "answers": {
+                "Q1": "",
+                "Q2": ""
+            }
+        }
+    },
+    "3": {
+        "Level 1: Fundamentals": {
+            "score_value": 2,
+            "date": "2025-12-10 11:29:10",
+            "answers": {
+                "Q1": "1",
+                "Q2": "1\n"
+            }
+        }
+    }
+}

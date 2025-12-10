@@ -1,0 +1,66 @@
+{
+    "Level 1: Fundamentals": {
+        "Q1": {
+            "question": "What does LLM stand for?",
+            "memo": "Large Language Model."
+        },
+        "Q2": {
+            "question": "What is the primary function of a token in an LLM?",
+            "memo": "A token is the basic unit of text (word, sub-word, or character) that the model processes for input and output."
+        }
+    },
+    "Level 2: Architecture": {
+        "Q1": {
+            "question": "Explain the concept of an 'Attention Mechanism' in a Transformer model.",
+            "memo": "The Attention Mechanism allows the model to weigh the importance of different tokens in the input text when processing any single token, enabling it to capture long-range dependencies."
+        },
+        "Q2": {
+            "question": "What role does the 'Decoder' block typically play in a Generative LLM?",
+            "memo": "The Decoder is responsible for generating the output sequence token by token, often based on the encoded input and the previously generated tokens."
+        }
+    },
+    "Level 3: Advanced Concepts": {
+        "Q1": {
+            "question": "What is the primary difference between Retrieval-Augmented Generation (RAG) and Fine-Tuning?",
+            "memo": "RAG improves LLM output by retrieving relevant information from an external knowledge base *at the time of inference* and feeding it into the prompt. Fine-tuning involves updating the model's internal weights and parameters on a specific dataset *before inference* to specialize its knowledge or style."
+        },
+        "Q2": {
+            "question": "If you are concerned about Hallucinations, which architectural component should you pay closest attention to?",
+            "memo": "The context window and the external data source (if using RAG). Hallucinations often stem from the LLM generating plausible but factually incorrect information when it runs out of relevant context or when its internal knowledge is incomplete."
+        }
+    },
+    "Level 4: Implementation": {
+        "Q1": {
+            "question": "Describe a scenario where a high model temperature would be detrimental to the output quality.",
+            "memo": "A high temperature (e.g., above 0.8) would be detrimental in tasks requiring high factual accuracy, logic, or consistent formatting, such as writing code, generating financial reports, or answering multiple-choice questions."
+        },
+        "Q2": {
+            "question": "In the context of prompting, what is 'Chain-of-Thought' (CoT) and why is it effective?",
+            "memo": "CoT prompting involves instructing the LLM to explain its reasoning step-by-step before providing the final answer. This is effective because it forces the LLM to structure its thinking, leading to more accurate and logical results, especially for complex, multi-step problems."
+        }
+    },
+    "Level 5: Multi-Select": {
+        "Q1_Multi": {
+            "question": "Which of the following statements accurately describe the characteristics or functions of a Large Language Model (LLM)? **(Select ALL that apply)**",
+            "options": {
+                "A": "LLMs utilize a Transformer architecture, relying heavily on the **Attention Mechanism** to weigh the importance of different words in the input context.",
+                "B": "LLMs operate by processing and generating text based on discrete units called **tokens**, which can represent words, sub-words, or characters.",
+                "C": "The core task of generative LLMs is to predict the **next most probable token** in a sequence, based on the patterns learned during pre-training on massive datasets.",
+                "D": "The behavior and output style of an LLM can be controlled during inference using a parameter called **temperature**, which influences the randomness and creativity of the generated response."
+            },
+            "correct_answers": ["A", "B", "C", "D"],
+            "memo": "All listed options (A, B, C, and D) are fundamental and accurate characteristics of modern Large Language Models (LLMs)."
+        },
+        "Q2_Single": {
+            "question": "What is the primary function of the 'self-attention' layer in the Transformer's Encoder block?",
+            "options": {
+                "A": "To convert the final output probabilities into human-readable text.",
+                "B": "To recursively generate the next token in the sequence during inference.",
+                "C": "To allow the model to weight and measure the relevance of all other tokens to the current token.",
+                "D": "To perform non-linear transformations on the data without changing the input length."
+            },
+            "correct_answer": "C",
+            "memo": "The self-attention mechanism is the core innovation of the Transformer, enabling the model to determine the importance of different words in the input sentence relative to the word currently being processed. This establishes context."
+        }
+    }
+}
