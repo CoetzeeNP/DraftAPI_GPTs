@@ -164,13 +164,7 @@ with st.sidebar:
     st.info(f"**Selected Provider:** {selected_model}\n**Key Status:** {key_status}")
     
     st.markdown("---")
-    st.markdown(f"***Current Model Profile (Hidden Parameters):***")
-    # Display the active parameters being used
-    st.markdown(f"* Temperature: **{params.get('temperature')}** (Default: {LLM_DEFAULTS['temperature']})")
-    st.markdown(f"* Top P: **{params.get('top_p')}** (Default: {LLM_DEFAULTS['top_p']})")
-    if params.get('top_k') is not None:
-        st.markdown(f"* Top K: **{params.get('top_k')}** (Default: None)")
-
+   
     if st.button("Clear Chat History", key="clear_chat"):
         st.session_state.messages = []
         st.rerun()
