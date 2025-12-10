@@ -14,27 +14,25 @@ GROK_MODEL_NAME = "grok-1"
 GROK_BASE_URL = "https://api.x.ai/v1" 
 
 # --- HYPERPARAMETER BASELINE DEFAULTS ---
-# Mimics common API defaults for temperature and top_p.
 LLM_DEFAULTS = {
     "temperature": 0.7, 
     "top_p": 1.0,      
     "top_k": None      
 }
 
-# --- CUSTOM HYPERPARAMETER PROFILES (Your "Invisible" Control) ---
-# Any parameter set here will OVERRIDE the LLM_DEFAULTS for that specific provider.
+# --- CUSTOM HYPERPARAMETER PROFILES ---
 CUSTOM_LLM_PROFILES = {
     "OpenAI (ChatGPT)": {
-        "temperature": 0.5, # Custom: More deterministic than 0.7
+        "temperature": 0.5, 
         "top_p": 0.9,       
     },
     "Google (Gemini)": {
-        "temperature": 0.3, # Custom: Highly focused/factual
+        "temperature": 0.3, 
         "top_p": 0.95,
         "top_k": 30
     },
     "xAI (Grok)": {
-        "temperature": 0.8, # Custom: More creative/conversational
+        "temperature": 0.8, 
     }
 }
 
@@ -68,14 +66,17 @@ def get_secret_key(provider: str) -> str:
 
 # --- SCORING AND STORAGE FUNCTIONS ---
 def load_scores() -> Dict[str, Any]:
-    """Loads all scores from the persistent JSON file."""
     if not os.path.exists(SCORE_FILE): return {}
     try:
         with open(SCORE_FILE, 'r') as f: return json.load(f)
     except json.JSONDecodeError: return {} 
 
-# --- CORE PAGE SETUP ---
-st.set_page_config(page_title="Multi-LLM Chat Assistant", layout="centered")
+# --- CORE PAGE SETUP (UPDATED FOR MOBILE) ---
+st.set_page_config(
+    page_title="Multi-LLM Chat Assistant", 
+    layout="wide",                       # Changed to 'wide' for better mobile landscape view
+    initial_sidebar_state="expanded"     # CRITICAL: Forces sidebar open on mobile WebViews
+)
 st.title("🤖 Multi-LLM Quiz and Chat Assistant")
 
 # --- USERNAME INPUT & VALIDATION ---
@@ -95,7 +96,6 @@ with col_user:
 
 with col_logout:
     if st.button("🚪 Logout", key="logout_btn"):
-        # Clear the username and session state
         del st.session_state["username"]
         if "user_name_input" in st.session_state: del st.session_state["user_name_input"]
         st.session_state.messages = [] 
@@ -103,19 +103,16 @@ with col_logout:
 
 st.markdown("---") 
 
-# Load existing scores for the current user
+# Load existing scores
 all_scores = load_scores()
 user_scores = all_scores.get(user_name, {})
 
 # --- Function to display score and button ---
 def display_quiz_level(level_name, file_path, column, user_scores):
     score_data = user_scores.get(level_name)
-    
     if "Level 5" in level_name:
-        # Assuming Level 5 score is 5 points (4+1)
         max_score = 5
     else:
-        # Assuming Levels 1-4 scores are 2 points (2 questions)
         max_score = 2 
 
     display_score = f"{score_data['score_value']} / {max_score}" if score_data else "Not Taken"
@@ -128,20 +125,17 @@ def display_quiz_level(level_name, file_path, column, user_scores):
         if st.button(f"{display_emoji} Go to {level_name.split(':')[0]}", key=f"go_to_{level_name}"):
             switch_page(file_path.replace(QUIZ_PAGE_PREFIX, "")) 
 
-
-# --- Displaying Navigation and Scores in Columns ---
+# --- Displaying Navigation ---
 cols = st.columns(len(QUIZ_LEVELS))
-
 for i, (level, file) in enumerate(QUIZ_LEVELS.items()):
     display_quiz_level(level, file, cols[i], user_scores)
 
 st.markdown("---") 
 
-# --- 1. CONFIGURATION (Sidebar - Secrets Driven and Parameter Loading) ---
+# --- 1. CONFIGURATION (Sidebar) ---
 with st.sidebar:
     st.subheader("LLM Configuration")
     
-    # 1. Model Selection
     selected_model = st.selectbox(
         "Choose LLM Provider:",
         options=["OpenAI (ChatGPT)", "Google (Gemini)", "xAI (Grok)"],
@@ -150,16 +144,13 @@ with st.sidebar:
     st.session_state["current_api_provider"] = selected_model
     st.session_state["selected_model"] = selected_model 
 
-    # 2. Key Retrieval
     api_key = get_secret_key(selected_model)
     st.session_state["current_api_key"] = api_key 
     
-    # 3. Load Dynamic Parameters (BASELINE + OVERRIDE)
     params = LLM_DEFAULTS.copy()
     params.update(CUSTOM_LLM_PROFILES.get(selected_model, {}))
     st.session_state["llm_params"] = params
 
-    # 4. Status Display
     key_status = '✅ Key Loaded (from secrets.toml)' if api_key else '❌ Key Missing in secrets.toml'
     st.info(f"**Selected Provider:** {selected_model}\n**Key Status:** {key_status}")
     
@@ -169,13 +160,13 @@ with st.sidebar:
         st.session_state.messages = []
         st.rerun()
 
-# --- 2. STATE MANAGEMENT (CHAT HISTORY) ---
+# --- 2. STATE MANAGEMENT ---
 if "messages" not in st.session_state:
     st.session_state.messages = [
         {"role": "assistant", "content": f"Hello! LLM chat is powered by **{selected_model}**. Ask me anything about LLMs!"}
     ]
 
-# --- 3. CORE LOGIC: API CALL FUNCTION (Updated to use dynamic parameters) ---
+# --- 3. CORE LOGIC: API CALL FUNCTION (UPDATED FOR STREAMING) ---
 def get_llm_response(model_provider, api_key, prompt_messages, params: Dict[str, Union[float, int, None]]):
     """Handles the API call to the selected LLM provider with dynamic parameters."""
     
@@ -186,7 +177,7 @@ def get_llm_response(model_provider, api_key, prompt_messages, params: Dict[str,
     try:
         if not api_key: return "❌ ERROR: The API Key is missing in your `secrets.toml` file for this provider."
 
-        # Filter messages for OpenAI/Grok compatibility (role mapping)
+        # Filter messages for OpenAI/Grok compatibility
         openai_messages = [{"role": m["role"], "content": m["content"]} for m in prompt_messages]
         
         if model_provider == "OpenAI (ChatGPT)":
@@ -202,19 +193,19 @@ def get_llm_response(model_provider, api_key, prompt_messages, params: Dict[str,
             
         elif model_provider == "Google (Gemini)":
             client = genai.Client(api_key=api_key)
-            # Adapt messages for Gemini format (user/model roles)
+            # Adapt messages for Gemini format
             gemini_messages = [{"role": m["role"].replace("assistant", "model"), "parts": [m["content"]]} for m in prompt_messages]
             
-            # Configure generation parameters
             config = genai.types.GenerateContentConfig(
                 temperature=temp,
                 top_p=top_p,
-                top_k=top_k if top_k is not None else 40 # Default Top K for Gemini if not provided
+                top_k=top_k if top_k is not None else 40 
             )
             
             model = client.models.get_model(GEMINI_MODEL_NAME) 
-            response = model.generate_content(contents=gemini_messages, config=config)
-            return response.text
+            # UPDATE: Using generate_content_stream for streaming response
+            response = model.generate_content_stream(contents=gemini_messages, config=config)
+            return response
             
         elif model_provider == "xAI (Grok)":
             client = OpenAI(api_key=api_key, base_url=GROK_BASE_URL) 
@@ -230,7 +221,7 @@ def get_llm_response(model_provider, api_key, prompt_messages, params: Dict[str,
     except Exception as e:
         return f"❌ LLM API Error: {e}"
 
-# --- 4. MAIN CHAT INTERFACE ---
+# --- 4. MAIN CHAT INTERFACE (UPDATED FOR STREAM CONSUMPTION) ---
 for message in st.session_state.messages:
     role = message["role"]
     display_role = "user" if role == "user" else selected_model
@@ -246,7 +237,6 @@ if prompt := st.chat_input(f"Ask your question to {selected_model} here..."):
         response_placeholder = st.empty()
         prompt_messages = st.session_state.messages 
         
-        # Pass dynamic parameters to the response function
         response = get_llm_response(
             selected_model, 
             st.session_state.get("current_api_key"), 
@@ -254,21 +244,31 @@ if prompt := st.chat_input(f"Ask your question to {selected_model} here..."):
             st.session_state.get("llm_params", {})
         )
 
+        full_response = ""
+
+        # Handle Error Strings directly
         if isinstance(response, str) and response.startswith("❌"):
             full_response = response
             response_placeholder.markdown(full_response)
             st.error("API call failed. Check your `secrets.toml` file.")
             
-        
+        # Handle OpenAI / Grok Streams
         elif selected_model == "OpenAI (ChatGPT)" or selected_model == "xAI (Grok)":
-            full_response = ""
             for chunk in response:
                 if chunk.choices and chunk.choices[0].delta and chunk.choices[0].delta.content:
                     full_response += chunk.choices[0].delta.content
                     response_placeholder.markdown(full_response)
-            
-        elif selected_model == "Google (Gemini)":
-            full_response = response
-            response_placeholder.markdown(full_response)
         
-        st.session_state.messages.append({"role": "assistant", "content": full_response})
+        # Handle Google (Gemini) Streams (NEW UPDATE)
+        elif selected_model == "Google (Gemini)":
+            try:
+                for chunk in response:
+                    if chunk.text:
+                        full_response += chunk.text
+                        response_placeholder.markdown(full_response)
+            except Exception as e:
+                response_placeholder.markdown(f"Error streaming Gemini response: {e}")
+
+        # Save the final response to session state
+        if full_response:
+             st.session_state.messages.append({"role": "assistant", "content": full_response})
